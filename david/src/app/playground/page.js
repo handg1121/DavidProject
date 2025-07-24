@@ -14,49 +14,15 @@ const PlaygroundPage = () => {
   const validateApiKey = async (apiKey) => {
     try {
       // Supabase에서 API 키를 검증
-      try {
-        const { data, error } = await supabase
-          .from('api_keys')
-          .select('*')
-          .eq('key', apiKey);
+      const { data, error } = await supabase
+        .from('api_keys')
+        .select('*')
+        .eq('key', apiKey);
 
-        if (!error && data && data.length > 0) {
-          console.log('API 키 검증 성공 (테이블):', data[0]);
-          return true;
-        }
-      } catch (tableError) {
-        console.log('테이블 검증 실패, 패턴 검증으로 진행');
-      }
-
-      // 엄격한 패턴 검증
-      const validApiKeys = [
-        'valid_key_123',
-        'test_api_key',
-        'demo_key_2024',
-        'working_key',
-        'correct_api_key'
-      ];
-
-      // 허용된 키 목록에 있는지 확인
-      if (validApiKeys.includes(apiKey)) {
-        console.log('API 키 검증 성공 (허용된 키):', apiKey);
+      if (!error && data && data.length > 0) {
+        console.log('API 키 검증 성공 (테이블):', data[0]);
         return true;
       }
-
-      // 패턴 검증 (더 엄격하게)
-      const isValidPattern = apiKey.length >= 8 && 
-                           /^[a-zA-Z0-9_-]+$/.test(apiKey) &&
-                           !apiKey.includes('invalid') &&
-                           !apiKey.includes('wrong') &&
-                           !apiKey.includes('fake') &&
-                           !apiKey.includes('test') && // 단순한 'test'는 거부
-                           apiKey.includes('_'); // 언더스코어가 포함되어야 함
-
-      if (isValidPattern) {
-        console.log('API 키 검증 성공 (패턴):', apiKey);
-        return true;
-      }
-
       console.log('API 키 검증 실패:', apiKey);
       return false;
     } catch (error) {
@@ -84,7 +50,6 @@ const PlaygroundPage = () => {
         localStorage.setItem('apiKey', apiKey);
         router.push('/protectedpage');
       } else {
-        // API 키가 유효하지 않은 경우 에러 메시지 표시
         setError('API 키가 유효하지 않습니다. 올바른 키를 입력해주세요.');
         setIsSubmitting(false);
       }
