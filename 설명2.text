@@ -1,0 +1,5 @@
+npm으로 langchain 연동이 되지 않아서 yarn 으로 일단 바꾼다고 한다.
+커서한테 물어보면 어떻게 해야되는지 다 알려준다.
+
+이제 langchain에 가서 설치방법대로 설치한다.
+기본 langchain 설치하고, commnunity 설치하고, core 설치하고, openAI 설치치
