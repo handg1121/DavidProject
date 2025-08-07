@@ -3,16 +3,10 @@ import { StructuredOutputParser } from "langchain/output_parsers";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-// 환경변수 강제 로딩
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// Next.js는 자동으로 .env.local 파일을 로드합니다
+// 추가적인 dotenv 설정이 필요하지 않습니다
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const envPath = path.join(__dirname, '../../../../.env.local');
-
-dotenv.config({ path: envPath });
+console.log('OPENAI_API_KEY 확인:', process.env.OPENAI_API_KEY ? '설정됨' : '설정되지 않음');
 
 // 요약 결과의 스키마 정의
 const summarySchema = z.object({
@@ -23,24 +17,29 @@ const summarySchema = z.object({
 // 스키마 기반 파서 생성
 const summaryParser = StructuredOutputParser.fromZodSchema(summarySchema);
 
-// LLM 인스턴스 생성
-const llm = new ChatOpenAI({
-  temperature: 0.2,
-  model: "gpt-3.5-turbo-16k",
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-export async function summarizeReadmeWithLangChain(readmeContent) {
-  // API 키가 없으면 에러 발생
+// LLM 인스턴스 생성 함수
+function createLLM() {
   if (!process.env.OPENAI_API_KEY) {
-    throw new Error('OPENAI_API_KEY 환경변수가 설정되지 않았습니다. .env.local 파일을 확인해주세요.');
+    throw new Error('OPENAI_API_KEY 환경변수가 설정되지 않았습니다. 프로젝트 루트에 .env.local 파일을 생성하고 OPENAI_API_KEY=your_api_key_here를 추가해주세요.');
   }
   
-  // 프롬프트 템플릿 정의
-  const prompt = ChatPromptTemplate.fromMessages([
-    [
-      "system",
-      `You are an expert open source analyst. 
+  return new ChatOpenAI({
+    temperature: 0.2,
+    model: "gpt-3.5-turbo-16k",
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
+
+export async function summarizeReadmeWithLangChain(readmeContent) {
+  try {
+    // LLM 인스턴스 생성
+    const llm = createLLM();
+    
+    // 프롬프트 템플릿 정의
+    const prompt = ChatPromptTemplate.fromMessages([
+      [
+        "system",
+        `You are an expert open source analyst. 
 Given the following GitHub repository README, create a comprehensive summary.
 
 {format_instructions}
@@ -48,14 +47,13 @@ Given the following GitHub repository README, create a comprehensive summary.
 README Content:
 {readme}
 `
-    ]
-  ]);
+      ]
+    ]);
 
-  // 체인 생성 - StructuredOutputParser 사용
-  const chain = prompt.pipe(llm).pipe(summaryParser);
+    // 체인 생성 - StructuredOutputParser 사용
+    const chain = prompt.pipe(llm).pipe(summaryParser);
 
-  try {
-  // 체인 실행
+    // 체인 실행
     const result = await chain.invoke({ 
       readme: readmeContent,
       format_instructions: summaryParser.getFormatInstructions()
@@ -65,10 +63,29 @@ README Content:
     return result;
   } catch (error) {
     console.error('LLM 요약 실패:', error);
-    // 에러 발생 시 기본 응답 반환
+    
+    // API 키 관련 에러인지 확인
+    if (error.message.includes('OPENAI_API_KEY')) {
+      return {
+        summary: "OpenAI API 키가 설정되지 않았습니다.",
+        cool_facts: [
+          "프로젝트 루트에 .env.local 파일을 생성해주세요",
+          "OPENAI_API_KEY=your_api_key_here를 추가해주세요",
+          "https://platform.openai.com/api-keys에서 API 키를 발급받을 수 있습니다",
+          "서버를 재시작한 후 다시 시도해주세요"
+        ]
+      };
+    }
+    
+    // 기타 에러의 경우
     return {
       summary: "요약을 생성하는 중 오류가 발생했습니다.",
-      cool_facts: ["LLM 서비스에 연결할 수 없습니다.", "API 키를 확인해주세요.", "네트워크 연결을 확인해주세요."]
+      cool_facts: [
+        "LLM 서비스에 연결할 수 없습니다.", 
+        "API 키를 확인해주세요.", 
+        "네트워크 연결을 확인해주세요.",
+        "잠시 후 다시 시도해주세요"
+      ]
     };
   }
 } 
