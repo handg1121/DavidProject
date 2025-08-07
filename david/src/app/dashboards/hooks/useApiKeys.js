@@ -16,11 +16,23 @@ export const useApiKeys = () => {
   }, []);
 
   const fetchApiKeys = async () => {
-    const { data, error } = await supabase.from('api_keys').select('*').order('id', { ascending: true });
-    if (!error) {
-      setApiKeys(data);
-    } else {
-      console.error('Error fetching API keys:', error);
+    try {
+      console.log('Fetching API keys...');
+      const { data, error } = await supabase.from('api_keys').select('*').order('id', { ascending: true });
+      
+      if (error) {
+        console.error('Supabase error:', error);
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+      } else {
+        console.log('API keys fetched successfully:', data);
+        setApiKeys(data || []);
+      }
+    } catch (err) {
+      console.error('Unexpected error in fetchApiKeys:', err);
     }
   };
 
