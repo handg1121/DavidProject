@@ -40,3 +40,4 @@ next-env.d.ts
 
 # environment variables
 .env.local
+david/.env.local
