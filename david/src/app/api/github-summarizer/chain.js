@@ -3,10 +3,17 @@ import { StructuredOutputParser } from "langchain/output_parsers";
 import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
-// Next.js는 자동으로 .env.local 파일을 로드합니다
-// 추가적인 dotenv 설정이 필요하지 않습니다
-
-console.log('OPENAI_API_KEY 확인:', process.env.OPENAI_API_KEY ? '설정됨' : '설정되지 않음');
+// 런타임에서만 환경 변수 확인
+function getOpenAIKey() {
+  // 빌드 시점이 아닌 런타임에서만 확인
+  if (typeof window !== 'undefined') {
+    return null; // 클라이언트 사이드에서는 접근 불가
+  }
+  
+  const apiKey = process.env.OPENAI_API_KEY;
+  console.log('OPENAI_API_KEY 확인:', apiKey ? '설정됨' : '설정되지 않음');
+  return apiKey;
+}
 
 // 요약 결과의 스키마 정의
 const summarySchema = z.object({
@@ -19,14 +26,15 @@ const summaryParser = StructuredOutputParser.fromZodSchema(summarySchema);
 
 // LLM 인스턴스 생성 함수
 function createLLM() {
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = getOpenAIKey();
+  if (!apiKey) {
     throw new Error('OPENAI_API_KEY 환경변수가 설정되지 않았습니다. 프로젝트 루트에 .env.local 파일을 생성하고 OPENAI_API_KEY=your_api_key_here를 추가해주세요.');
   }
   
   return new ChatOpenAI({
     temperature: 0.2,
     model: "gpt-3.5-turbo-16k",
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: apiKey,
   });
 }
 

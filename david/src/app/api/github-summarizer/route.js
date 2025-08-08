@@ -1,6 +1,35 @@
 import { supabase } from '../../dashboards/supabaseClient';
 import { summarizeReadmeWithLangChain } from './chain';
 
+// 동적 라우트 설정 - SSG에서 제외
+export const dynamic = 'force-dynamic';
+
+// GET 요청 처리
+export async function GET(req) {
+  return new Response(JSON.stringify({ 
+    message: 'GitHub Summarizer API', 
+    method: 'GET',
+    note: 'POST 요청을 사용하여 GitHub URL과 API 키를 전송하세요.' 
+  }), { 
+    status: 200,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+}
+
+// OPTIONS 요청 처리 (CORS 지원)
+export async function OPTIONS(req) {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key',
+    },
+  });
+}
+
 export async function POST(req) {
   try {
     console.log('=== GitHub Summarizer API 키 검증 시작 ===');
