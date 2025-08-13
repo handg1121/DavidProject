@@ -6,3 +6,9 @@
 우선 page.js 파일에 로그인 버튼을 만들고, 구글의 SSO 흐름을 커서AI에 요청한다. 어떻게 해야하는지 방법도 요청했으므로, 커서가 알려준대로 구글 클라우드를 설정한다.
 Implement an entire Google SSO flow, show me step by step what do I need to configure. Add a login button in @page.js
 
+
+
+다음 진행할 것은 로그인한 사용자를 supabase에 저장하는 것이다. 사용자가 없다면 새 레코드를 생성, 있다면 기존 데이터를 불러들이게 할 것이다. 커서AI에게 요청한다.
+ When a user logs in for the first time I want you too add the user details to the supabase database.
+
+ 몇가지 오류들을 잡고 난다음, 슈파베이스에 연동할 마이그레이션 스크립트를 커서에게 만들어달라고 요청한다.
