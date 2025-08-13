@@ -40,8 +40,12 @@ function createLLM() {
 
 export async function summarizeReadmeWithLangChain(readmeContent) {
   try {
+    console.log('=== LLM 요약 시작 ===');
+    console.log('README 내용 길이:', readmeContent?.length || 0);
+    
     // LLM 인스턴스 생성
     const llm = createLLM();
+    console.log('LLM 인스턴스 생성 완료');
     
     // 프롬프트 템플릿 정의
     const prompt = ChatPromptTemplate.fromMessages([
@@ -58,10 +62,14 @@ README Content:
       ]
     ]);
 
+    console.log('프롬프트 템플릿 생성 완료');
+
     // 체인 생성 - StructuredOutputParser 사용
     const chain = prompt.pipe(llm).pipe(summaryParser);
+    console.log('체인 생성 완료');
 
     // 체인 실행
+    console.log('체인 실행 시작...');
     const result = await chain.invoke({ 
       readme: readmeContent,
       format_instructions: summaryParser.getFormatInstructions()
@@ -70,10 +78,15 @@ README Content:
     console.log('LLM 요약 결과:', result);
     return result;
   } catch (error) {
-    console.error('LLM 요약 실패:', error);
+    console.error('=== LLM 요약 실패 상세 정보 ===');
+    console.error('에러 타입:', error.constructor.name);
+    console.error('에러 메시지:', error.message);
+    console.error('에러 스택:', error.stack);
+    console.error('에러 객체:', JSON.stringify(error, null, 2));
     
     // API 키 관련 에러인지 확인
     if (error.message.includes('OPENAI_API_KEY')) {
+      console.error('API 키 관련 에러 감지');
       return {
         summary: "OpenAI API 키가 설정되지 않았습니다.",
         cool_facts: [
@@ -85,9 +98,38 @@ README Content:
       };
     }
     
+    // OpenAI API 관련 에러인지 확인
+    if (error.message.includes('OpenAI') || error.message.includes('API') || error.message.includes('401') || error.message.includes('403')) {
+      console.error('OpenAI API 에러 감지');
+      return {
+        summary: "OpenAI API 연결에 실패했습니다.",
+        cool_facts: [
+          "API 키가 올바른지 확인해주세요",
+          "API 키에 충분한 크레딧이 있는지 확인해주세요",
+          "OpenAI 서비스 상태를 확인해주세요",
+          "잠시 후 다시 시도해주세요"
+        ]
+      };
+    }
+    
+    // 네트워크 관련 에러인지 확인
+    if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('timeout')) {
+      console.error('네트워크 에러 감지');
+      return {
+        summary: "네트워크 연결에 실패했습니다.",
+        cool_facts: [
+          "인터넷 연결을 확인해주세요",
+          "방화벽 설정을 확인해주세요",
+          "프록시 설정을 확인해주세요",
+          "잠시 후 다시 시도해주세요"
+        ]
+      };
+    }
+    
     // 기타 에러의 경우
+    console.error('기타 에러 감지');
     return {
-      summary: "요약을 생성하는 중 오류가 발생했습니다.",
+      summary: `요약을 생성하는 중 오류가 발생했습니다: ${error.message}`,
       cool_facts: [
         "LLM 서비스에 연결할 수 없습니다.", 
         "API 키를 확인해주세요.", 

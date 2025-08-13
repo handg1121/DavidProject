@@ -160,12 +160,19 @@ export async function POST(req) {
       return new Response(JSON.stringify({ valid: false, error: 'README.md를 찾을 수 없습니다.' }), { status: 404 });
     }
 
+    console.log('README 내용 가져오기 성공, 길이:', readmeContent.length);
+
     // LLM을 사용하여 README 요약
     let summary = null;
     try {
+      console.log('=== LLM 요약 시작 ===');
       summary = await summarizeReadmeWithLangChain(readmeContent);
+      console.log('LLM 요약 완료:', summary ? '성공' : '실패');
     } catch (summaryError) {
-      console.error('LLM 요약 실패:', summaryError);
+      console.error('LLM 요약 중 예외 발생:', summaryError);
+      console.error('에러 타입:', summaryError.constructor.name);
+      console.error('에러 메시지:', summaryError.message);
+      console.error('에러 스택:', summaryError.stack);
       // 요약 실패해도 원본 README는 반환
     }
 
