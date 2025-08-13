@@ -1,0 +1,8 @@
+로그인 기능 구현 (일종의 인증 시스템)
+여기서 사용할 인증 흐름은 구글계정으로 로그인하는 방식이다.
+1. next-auth 라이브러리 설치 (yarn add next-auth)
+2. 구글 클라우드 프로젝트 만들고 OAUTH 동의화면 만들기
+
+우선 page.js 파일에 로그인 버튼을 만들고, 구글의 SSO 흐름을 커서AI에 요청한다. 어떻게 해야하는지 방법도 요청했으므로, 커서가 알려준대로 구글 클라우드를 설정한다.
+Implement an entire Google SSO flow, show me step by step what do I need to configure. Add a login button in @page.js
+
