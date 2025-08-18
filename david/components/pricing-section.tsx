@@ -58,12 +58,26 @@ export function PricingSection() {
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative border-border ${plan.popular ? "ring-2 ring-accent" : ""}`}>
+            <Card
+              key={index}
+              className={
+                // 기본 상태에서는 평범한 테두리, hover 시 파란색 테두리/링 강조
+                "group relative border border-border transition-colors duration-200 hover:border-blue-500 hover:ring-2 hover:ring-blue-200"
+              }
+            >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <div className="bg-accent text-accent-foreground px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
                     <Star className="h-3 w-3" />
                     Most Popular
+                  </div>
+                </div>
+              )}
+
+              {(plan.name === "Pro" || plan.name === "Enterprise") && (
+                <div className="absolute -top-3 right-4">
+                  <div className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-xs font-medium">
+                    Coming Soon
                   </div>
                 </div>
               )}
@@ -88,10 +102,14 @@ export function PricingSection() {
                 </ul>
 
                 <Button
-                  className={`w-full ${plan.popular ? "bg-accent hover:bg-accent/90" : ""}`}
-                  variant={plan.popular ? "default" : "outline"}
+                  className={`w-full transition-colors ${
+                    // Free 카드만 hover 시 파란색 버튼으로 변화
+                    plan.name === "Free" ? "group-hover:bg-blue-600 group-hover:text-white" : ""
+                  }`}
+                  variant={"outline"}
+                  disabled={plan.name === "Pro" || plan.name === "Enterprise"}
                 >
-                  {plan.name === "Free" ? "Get Started" : "Start Free Trial"}
+                  {plan.name === "Free" ? "Get Started" : "Coming Soon"}
                 </Button>
               </CardContent>
             </Card>

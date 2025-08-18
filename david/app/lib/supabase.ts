@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+
 // Supabase 클라이언트 생성 (환경 변수가 없으면 에러 방지)
 let supabase: any;
 

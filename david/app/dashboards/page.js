@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Notification from "./components/Notification";
 import PlanCard from "./components/PlanCard";
@@ -9,7 +9,24 @@ import { useApiKeys } from "./hooks/useApiKeys";
 import { useNotification } from "./hooks/useNotification";
 
 export default function Dashboards() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // 화면 폭에 따라 사이드바 기본 상태를 설정 (lg 이상: 열림, 그 외: 닫힘)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const media = window.matchMedia('(min-width: 1024px)');
+    const apply = (e) => setSidebarOpen(e.matches);
+    // 초기 적용
+    apply(media);
+    // 리스너 등록
+    if (media.addEventListener) {
+      media.addEventListener('change', apply);
+      return () => media.removeEventListener('change', apply);
+    } else {
+      media.addListener(apply);
+      return () => media.removeListener(apply);
+    }
+  }, []);
   
   const {
     apiKeys,
@@ -63,7 +80,7 @@ export default function Dashboards() {
       {/* Main Content */}
       <div className="flex-1">
         <Notification notification={notification} setNotification={setNotification} />
-        <Header />
+        <Header onOpenSidebar={() => setSidebarOpen(true)} />
 
         {/* 메인 컨텐츠 */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

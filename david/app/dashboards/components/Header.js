@@ -2,14 +2,26 @@
 import React from "react";
 import { BellIcon, UserCircleIcon } from "@heroicons/react/24/outline";
 
-export default function Header() {
+export default function Header({ onOpenSidebar }) {
   return (
     <div className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-6">
-          <div>
-            <div className="text-sm text-gray-500 mb-1">Pages / Overview</div>
-            <h1 className="text-3xl font-bold text-gray-900">Overview</h1>
+          <div className="flex items-center gap-3">
+            {/* 모바일에서만 보이는 햄버거 버튼 */}
+            <button
+              className="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300"
+              onClick={() => onOpenSidebar && onOpenSidebar()}
+              aria-label="Open sidebar"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <div className="text-sm text-gray-500 mb-1">Pages / Overview</div>
+              <h1 className="text-3xl font-bold text-gray-900">Overview</h1>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2 bg-green-100 px-3 py-1 rounded-full">

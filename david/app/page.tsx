@@ -7,6 +7,7 @@ import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
 import { AuthSection } from "./components/auth-section"
 
+
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-sky-50 via-background to-background dark:from-sky-950">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Github } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useEffect, useRef } from "react"
+import { MobileNav } from "@/components/mobile-nav"
 
 export function Header() {
   const { data: session, status } = useSession()
@@ -69,7 +70,7 @@ export function Header() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4">
             {status === "authenticated" ? (
               <>
                 <Button variant="ghost" size="sm" asChild>
@@ -97,6 +98,11 @@ export function Header() {
                 </Button>
               </>
             )}
+          </div>
+
+          {/* Mobile menu trigger */}
+          <div className="md:hidden">
+            <MobileNav />
           </div>
         </div>
       </div>
