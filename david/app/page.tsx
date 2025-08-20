@@ -6,6 +6,7 @@ import { PricingSection } from "@/components/pricing-section"
 import { CTASection } from "@/components/cta-section"
 import { Footer } from "@/components/footer"
 import { AuthSection } from "./components/auth-section"
+import { APIDemoSection } from "./components/api-demo-section"
 
 
 export default function HomePage() {
@@ -22,6 +23,7 @@ export default function HomePage() {
         <HeroSection />
         <AuthSection />
         <FeaturesSection />
+        <APIDemoSection />
         <StatsSection />
         <PricingSection />
         <CTASection />

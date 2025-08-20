@@ -1,0 +1,44 @@
+.cursurrules 파일을 하나 만든다.
+앞서 봤지만 커서의 역할을 지정해주는 일종의 설정집이라고 생각하면 편하다.
+cursor.directory에 가서 적당한 프롬프트를 가져온다.
+
+지금까지 만든 코드는 데이터베이스를 클라이언트에서 호출하는 방식이며, 좋은 방식이 아니라고 한다.
+
+이제부터 만들 구조는 로그인한 사용자에게 JWT토큰을 발급하여 유효성을 검증하고, API키 호출을 할 수 있게 만드는 것이다.
+또한 사람이 아닌 로봇도 API키 호출을 할 수 있도록 하는 것임.
+
+커서 노트패드라는 것도 있다.
+.cursorrules
+프로젝트/레포 수준의 “항상 지켜야 할 규칙”.
+버전관리로 팀과 공유, 안정적·장기적 가이드에 적합.
+코드 스타일, 아키텍처 원칙, 금지/권장사항 등 고정 규칙 저장.
+노트패드
+현재 작업 맥락을 즉시 반영하는 “가변 메모”.
+커밋 불필요, 작업 중 수시로 켜고 끄며 수정.
+이슈/티켓별 요구사항, 임시 우선순위, 실험적 가이드, 특정 파일 경로/엔드포인트 같은 단기 콘텍스트에 적합.
+.cursorrules를 덮어쓰는 “임시 오버라이드” 용도로도 유용.
+
+
+
+노트패드에 이렇게 추가를 해두면, 커서가 매번 해당 컨텍스트를 참조하여 CRUD API를 만들게 된다.
+Implement a CRUD API for managing API Keys, the original code is @useApiKeys.js.
+노트패드를 지우면, 더이상 참조할 컨텍스트가 없게 된다. 간단하게 지우고 쓰기에는 커서룰스보다 노트패드가 편하다는 것.
+환경설정 beta에서 노트패드를 활성화하고 커서 익스플로러에서 노트패드를 보이게 해야 나타난다. 베타기능이라 불편하게해놨나.
+
+일단 아래와같은 프롬프트를 준다. 강사의 말에 따르면 커서에 많은 기능을 한번에 주려고 하면 제대로 작동을 하지 않는다고 한다. 2시간 가량 디버깅과 프롬프트 수정을 거친 결과물이라고..
+[ID] 라고 들어간것도 이유가 있다고 하는데, 이해는 잘 안됐다. 동적 라우팅이 뭐지?
+그리고 해당 계정으로 들어가서 생성한 API는 해당 계정에만 보이고 다른 계정에서는 조회할 수 없도록 하는 구현이 있는것 같다.
+I want to:
+1. Move all the CRUD in @useApiKeys.js functionally to be under a REST endpoint which can only be invoked from and authenticated user.
+make sure to implement also [ID] endpoints.
+2. ALl operations should work only for a specific owner. You can get the user id from retriving the email from the JWT and searching for its corresponding user in the supabase DB.
+Use getServerSession server function from nextauth
+3. remeber to use @supabaseClient.js for supabase intraction.
+
+USE @NextJS @CRUD
+
+
+뭔가 구현이 된듯 한데...
+다음은
+Update @page.js to use the CRUD rest endpoints in @api-Keys
+I wnat you to get the current logged in user JWT in the client and send it to the server to perform all the crud operations.

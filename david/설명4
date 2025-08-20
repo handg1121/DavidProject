@@ -26,11 +26,10 @@ make that the pro and enterprise tiers are "coming soon" in the top right of the
 
 
 
-이제 데모버전을 만들어볼 차례이다. v0에게 요청한다.
+이제 데모버전을 만들어볼 차례이다. v0에게 요청한다. postman의 예시를 스크린샷으로 첨부해서 보내주자.
 add another component that demos the service making an API request.
-
 Attached is the example of the request.
-
 The demo should show by default the original request in the photo but let the user Edit the payload and resend it again to see how it works.
-
 also add "documentation" button to that section.
+
+만들어진 v0 프로젝트의 해당 코드를 가져와서 커서에 통합해달라고 요청해보는 실습단계이다. 잘 가져와서 통합해달라고 해보자.

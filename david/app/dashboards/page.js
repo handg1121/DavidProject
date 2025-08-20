@@ -7,9 +7,11 @@ import Header from "./components/Header";
 import ApiKeyTable from "./components/ApiKeyTable";
 import { useApiKeys } from "./hooks/useApiKeys";
 import { useNotification } from "./hooks/useNotification";
+import { useSession } from "next-auth/react";
 
 export default function Dashboards() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   // 화면 폭에 따라 사이드바 기본 상태를 설정 (lg 이상: 열림, 그 외: 닫힘)
   useEffect(() => {
@@ -72,6 +74,18 @@ export default function Dashboards() {
     const result = await handleDelete(id);
     showNotification(result.message, result.type || 'error');
   };
+
+  if (status === 'loading') {
+    return (
+      <div className="flex min-h-screen items-center justify-center">로딩 중...</div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">로그인이 필요합니다.</div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">

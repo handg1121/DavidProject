@@ -6,7 +6,7 @@ export function CTASection() {
     <section className="py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-accent/10 to-accent/5 rounded-2xl p-12 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold font-heading mb-4">Ready to Unlock Repository Insights?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold font-heading mb-4 bg-gradient-to-r from-sky-600 via-indigo-600 to-fuchsia-600 bg-clip-text text-transparent">Ready to Unlock Repository Insights?</h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join thousands of developers who use David Github Analyzer to make better decisions about open source
             projects.
