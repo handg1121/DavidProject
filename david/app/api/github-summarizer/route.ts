@@ -1,5 +1,7 @@
-import { supabase, isSupabaseConfigured } from "@/app/lib/supabase";
+import { supabase as supabaseAnon, isSupabaseConfigured } from "../../lib/supabase";
+import { supabaseAdmin, isSupabaseAdminConfigured } from "../../lib/supabase-admin";
 import { summarizeReadmeWithLangChain } from "./chain";
+import { checkAndIncrementApiKeyUsage } from "../../lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -25,7 +27,7 @@ export async function OPTIONS() {
 
 export async function POST(req: Request) {
   try {
-    if (!isSupabaseConfigured) {
+    if (!isSupabaseConfigured && !isSupabaseAdminConfigured) {
       return new Response(JSON.stringify({ valid: false, error: 'Supabase is not configured.' }), { status: 500 });
     }
 
@@ -86,18 +88,13 @@ export async function POST(req: Request) {
       return new Response(JSON.stringify({ valid: false, error: 'API key is required.' }), { status: 400 });
     }
 
-    // Supabase 확인
-    let query = supabase.from('api_keys').select('*').eq('key', apiKey);
-    if (user) query = query.eq('user', user);
-    const { data, error } = await query;
-    if (error) {
-      return new Response(JSON.stringify({ valid: false, error: 'Database error.', details: error.message }), { status: 500 });
-    }
-    if (!data || data.length === 0) {
-      return new Response(JSON.stringify({ valid: false, error: '유효하지 않은 사용자명 또는 API 키입니다.' }), { status: 401 });
+    // Rate limit check + increment (reusable)
+    const rl = await checkAndIncrementApiKeyUsage({ apiKey, user });
+    if (!rl.ok) {
+      return new Response(JSON.stringify({ valid: false, error: rl.message, usage: rl.usage, limit: rl.limit }), { status: rl.status });
     }
 
-    // README 불러오기
+    // README 불러오기 및 요약
     const readme = await getReadmeContent(githubUrl);
     if (!readme) {
       return new Response(JSON.stringify({ valid: false, error: 'README.md를 찾을 수 없습니다.' }), { status: 404 });

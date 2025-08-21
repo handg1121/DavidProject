@@ -27,6 +27,20 @@ export default function ApiKeyTable({
     showNotification(result.message, result.success ? 'success' : 'error');
   };
 
+  const getUsage = (k) => {
+    const u = typeof k?.usage === 'number' ? k.usage : (typeof k?.usage_count === 'number' ? k.usage_count : 0);
+    return u ?? 0;
+  };
+  const getLimit = (k) => {
+    const l = typeof k?.limit === 'number' ? k.limit : (typeof k?.usage_limit === 'number' ? k.usage_limit : null);
+    return l;
+  };
+  const renderUsage = (k) => {
+    const u = getUsage(k);
+    const l = getLimit(k);
+    return l != null ? `${u}/${l}` : `${u}`;
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200">
       <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
@@ -71,7 +85,7 @@ export default function ApiKeyTable({
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">dev</span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="text-sm text-gray-900">0</span>
+                  <span className="text-sm text-gray-900">0/200</span>
                 </td>
                 <td className="px-6 py-4">
                   <input
@@ -118,7 +132,7 @@ export default function ApiKeyTable({
                       </select>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-900">0</span>
+                      <span className="text-sm text-gray-900">{renderUsage(k)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <input
@@ -156,7 +170,7 @@ export default function ApiKeyTable({
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-900">0</span>
+                      <span className="text-sm text-gray-900">{renderUsage(k)}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm font-mono text-gray-700">{revealedKeys.has(k.id) ? k.key : maskApiKey(k.key)}</span>
@@ -288,6 +302,7 @@ export default function ApiKeyTable({
                 <div className="text-sm text-gray-700 break-all font-mono">
                   {revealedKeys.has(k.id) ? k.key : maskApiKey(k.key)}
                 </div>
+                <div className="text-xs text-gray-600">Usage: {renderUsage(k)}</div>
                 <div className="flex flex-wrap items-center justify-start gap-1 pt-1">
                   <button
                     className="p-2 rounded-md text-gray-600 hover:bg-gray-100"
@@ -302,7 +317,7 @@ export default function ApiKeyTable({
                     ) : (
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
                     )}
                   </button>

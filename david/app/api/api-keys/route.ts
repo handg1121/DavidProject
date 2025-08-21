@@ -92,6 +92,7 @@ export async function GET(req: Request) {
   if ('error' in auth) return auth.error;
   const { email } = auth;
 
+  // owner=email 기준
   const byOwnerResp = await supabase
     .from('api_keys')
     .select('*')
@@ -99,36 +100,24 @@ export async function GET(req: Request) {
     .order('id', { ascending: true });
 
   if (byOwnerResp.error && isMissingColumnError(byOwnerResp.error, 'owner')) {
-    const byOwnerEmail = await supabase
+    // 최후 폴백: user=email (레거시)
+    const legacyOnly = await supabase
       .from('api_keys')
       .select('*')
-      .eq('owner_email', email)
+      .eq('user', email)
       .order('id', { ascending: true });
 
-    if (byOwnerEmail.error && isMissingColumnError(byOwnerEmail.error, 'owner_email')) {
-      const legacyOnly = await supabase
-        .from('api_keys')
-        .select('*')
-        .eq('user', email)
-        .order('id', { ascending: true });
-
-      if (legacyOnly.error) {
-        return NextResponse.json({ message: 'Failed to fetch API keys', details: legacyOnly.error.message }, { status: 500 });
-      }
-      return NextResponse.json(legacyOnly.data ?? []);
+    if (legacyOnly.error) {
+      return NextResponse.json({ message: 'Failed to fetch API keys', details: legacyOnly.error.message }, { status: 500 });
     }
-
-    if (byOwnerEmail.error) {
-      return NextResponse.json({ message: 'Failed to fetch API keys', details: byOwnerEmail.error.message }, { status: 500 });
-    }
-
-    return NextResponse.json(byOwnerEmail.data ?? []);
+    return NextResponse.json(legacyOnly.data ?? []);
   }
 
   if (byOwnerResp.error) {
     return NextResponse.json({ message: 'Failed to fetch API keys', details: byOwnerResp.error.message }, { status: 500 });
   }
 
+  // 레거시 백필: owner가 비어 있고 user=email인 레코드 → owner=email로 채움
   const legacy = await supabase
     .from('api_keys')
     .select('id')
@@ -169,27 +158,31 @@ export async function POST(req: Request) {
     .single();
 
   if (insert.error && isMissingColumnError(insert.error, 'owner')) {
-    let ownerInsert = await supabase
+    // 최후 폴백: user=email (라벨은 저장 불가)
+    insert = await supabase
       .from('api_keys')
-      .insert([{ owner_email: email, key: apiKey, user: label || null }])
+      .insert([{ user: email, key: apiKey }])
       .select('*')
       .single();
-
-    if (ownerInsert.error && isMissingColumnError(ownerInsert.error, 'owner_email')) {
-      ownerInsert = await supabase
-        .from('api_keys')
-        .insert([{ user: email, key: apiKey }])
-        .select('*')
-        .single();
-    }
-
-    insert = ownerInsert;
   }
 
   if (insert.error) {
     return NextResponse.json({ message: 'Failed to create API key', details: insert.error.message }, { status: 500 });
   }
 
-  console.log('[api-keys] POST created', { id: (insert.data as any)?.id, email });
+  // 생성 직후 초기화
+  const newId = (insert.data as any)?.id as string;
+  if (newId) {
+    let init = await supabase.from('api_keys').update({ usage: 0 }).eq('id', newId).select('id').single();
+    if ((init as any)?.error && (init as any).error.code === '42703') {
+      init = await supabase.from('api_keys').update({ usage_count: 0 }).eq('id', newId).select('id').single();
+    }
+    let limitSet = await supabase.from('api_keys').update({ limit: 200 }).eq('id', newId).select('id').single();
+    if ((limitSet as any)?.error && (limitSet as any).error.code === '42703') {
+      limitSet = await supabase.from('api_keys').update({ usage_limit: 200 }).eq('id', newId).select('id').single();
+    }
+  }
+
+  console.log('[api-keys] POST created', { id: newId, email });
   return NextResponse.json(insert.data, { status: 201 });
 } 
